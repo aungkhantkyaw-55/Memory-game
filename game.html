@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light" class="game-html">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Memory Master — Play</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    /* ============================================================================
+       GAME NAVBAR
+       ============================================================================ */
+    .game-navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      height: var(--nav-h);
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      transition: background var(--t);
+    }
+    
+    [data-theme="dark"] .game-navbar {
+      background: rgba(14, 15, 26, 0.92);
+    }
+
+    .game-nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Baloo 2', cursive;
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--text);
+      text-decoration: none;
+    }
+    
+    .game-nav-brand:hover {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    
+    .game-nav-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--grad);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      box-shadow: 0 2px 8px rgba(91, 106, 240, 0.3);
+    }
+    
+    .game-nav-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* ============================================================================
+       SIDEBAR STAT LABELS
+       ============================================================================ */
+    .g-section-lbl {
+      font-size: 0.64rem;
+      font-weight: 700;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      margin-bottom: 2px;
+    }
+    
+    .g-diff-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Baloo 2', cursive;
+      font-size: 0.9rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    
+    .g-progress-lbl {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text3);
+      margin-bottom: 4px;
+    }
+    
+    .g-turn-info {
+      background: rgba(91, 106, 240, 0.07);
+      border: 1px solid rgba(91, 106, 240, 0.18);
+      border-radius: var(--r);
+      padding: 8px 10px;
+      text-align: center;
+    }
+    
+    .g-turn-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 5px;
+    }
+    
+    .g-turn-dots {
+      display: flex;
+      justify-content: center;
+      gap: 5px;
+    }
+    
+    .g-flip-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--border2);
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+    
+    .g-flip-dot.active {
+      background: var(--accent);
+      box-shadow: 0 0 6px rgba(91, 106, 240, 0.55);
+    }
+
+    /* ============================================================================
+       BOARD AREA 
+       ============================================================================ */
+    #board-area {
+      flex: 1;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      padding: 10px;
+      background: var(--bg);
+    }
+
+    /* ============================================================================
+       DIFFICULTY SELECT SCREEN (shown before game starts)
+       ============================================================================ */
+    #diff-select-screen {
+      flex: 1;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      background: var(--bg);
+    }
+    
+    .g-diff-screen {
+      text-align: center;
+      max-width: 560px;
+      width: 100%;
+    }
+    
+    .g-diff-screen h2 {
+      font-family: 'Baloo 2', cursive;
+      font-weight: 800;
+      font-size: clamp(1.3rem, 3.5vw, 2rem);
+      margin-bottom: 8px;
+    }
+    
+    .g-diff-screen > p {
+      color: var(--text2);
+      font-size: 0.9rem;
+      margin-bottom: 22px;
+    }
+
+    /* ============================================================================
+       MODE OVERLAY — Floats over game, doesn't navigate away
+       ============================================================================ */
+    .mode-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 150;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+    
+    .mode-overlay.show {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .mode-overlay-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-xl);
+      padding: 30px 28px;
+      max-width: 520px;
+      width: 100%;
+      box-shadow: var(--shadow-l);
+      transform: scale(0.88) translateY(14px);
+      transition: transform 0.28s cubic-bezier(0.2, 1.4, 0.4, 1);
+    }
+    
+    .mode-overlay.show .mode-overlay-box {
+      transform: scale(1) translateY(0);
+    }
+
+    .mode-overlay-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    
+    .mode-overlay-title {
+      font-family: 'Baloo 2', cursive;
+      font-size: 1.3rem;
+      font-weight: 800;
+    }
+    
+    .mode-overlay-sub {
+      color: var(--text2);
+      font-size: 0.85rem;
+      margin-bottom: 20px;
+    }
+
+    .mode-overlay-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    
+    .mode-pick-btn {
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 16px 14px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.22s ease;
+      color: var(--text);
+      font-family: 'Nunito', sans-serif;
+    }
+    
+    .mode-pick-btn:hover {
+      transform: translateY(-3px);
+    }
+    
+    .mode-pick-btn.easy:hover {
+      border-color: #22c55e;
+      box-shadow: 0 6px 20px rgba(34, 197, 94, 0.18);
+    }
+    
+    .mode-pick-btn.medium:hover {
+      border-color: #f59e0b;
+      box-shadow: 0 6px 20px rgba(245, 158, 11, 0.18);
+    }
+    
+    .mode-pick-btn.hard:hover {
+      border-color: #ef4444;
+      box-shadow: 0 6px 20px rgba(239, 68, 68, 0.18);
+    }
+    
+    .mode-pick-btn.extreme:hover {
+      border-color: #7c3aed;
+      box-shadow: 0 6px 20px rgba(124, 58, 237, 0.18);
+    }
+    
+    .mode-pick-icon {
+      font-size: 1.8rem;
+      margin-bottom: 6px;
+      display: block;
+    }
+    
+    .mode-pick-name {
+      font-family: 'Baloo 2', cursive;
+      font-size: 0.95rem;
+      font-weight: 800;
+      margin-bottom: 3px;
+    }
+    
+    .mode-pick-info {
+      font-size: 0.72rem;
+      color: var(--text3);
+      line-height: 1.45;
+    }
+
+    .mode-continue-btn {
+      width: 100%;
+      padding: 11px;
+      background: transparent;
+      border: 1.5px solid var(--border);
+      border-radius: var(--r);
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text2);
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+    }
+    
+    .mode-continue-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(91, 106, 240, 0.06);
+    }
+
+    /* ============================================================================
+       ACTIVE MODE INDICATOR (shows which mode is currently selected)
+       ============================================================================ */
+    .mode-pick-btn.current-mode {
+      border-color: var(--accent);
+      background: rgba(91, 106, 240, 0.08);
+      box-shadow: 0 0 0 2px rgba(91, 106, 240, 0.2);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================================================
+       NAVIGATION BAR
+       ============================================================================ -->
+  <nav class="game-navbar">
+    <a href="home.html" class="game-nav-brand" onclick="return confirmExit()">
+      <div class="game-nav-icon">🧠</div>
+      <span>Memory Master</span>
+    </a>
+    
+    <div class="game-nav-right">
+      <button class="btn-icon theme-btn" title="Toggle theme" style="background:var(--surface2);border:1px solid var(--border)"></button>
+      <a href="home.html" class="btn btn-ghost btn-sm" onclick="return confirmExit()">🏠 Home</a>
+    </div>
+  </nav>
+
+  <!-- ============================================================================
+       MAIN GAME CONTAINER 
+       ============================================================================ -->
+  <div class="game-root" style="margin-top:var(--nav-h)">
+
+    <!-- ===== STATS SIDEBAR ===== -->
+    <aside class="g-sidebar">
+
+      <div class="g-diff-label">
+        <span id="g-diff-icon">🎮</span>
+        <span id="g-diff-name" style="color:var(--text2)">No mode</span>
+      </div>
+
+      <div>
+        <div class="g-section-lbl">Time Left</div>
+        <div class="g-stat">
+          <div class="g-stat-val" id="g-time">—</div>
+          <div class="g-stat-lbl">seconds</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="g-section-lbl">Moves</div>
+        <div class="g-stat">
+          <div class="g-stat-val" id="g-moves">0</div>
+          <div class="g-stat-lbl">turns</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="g-section-lbl">Pairs</div>
+        <div class="g-stat">
+          <div class="g-stat-val" id="g-pairs">0/0</div>
+          <div class="g-stat-lbl">found</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="g-progress-lbl">
+          <span>Progress</span>
+          <span id="g-pct">0%</span>
+        </div>
+        <div class="g-progress-wrap">
+          <div class="g-progress-fill" id="progress-fill" style="width:0%"></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="g-section-lbl">Score</div>
+        <div class="g-stat">
+          <div class="g-stat-val grad-text" id="g-score">0</div>
+          <div class="g-stat-lbl">estimate</div>
+        </div>
+      </div>
+
+      <div class="g-turn-info">
+        <div class="g-turn-label">Flips / Turn</div>
+        <div class="g-turn-dots" id="flip-dots"></div>
+      </div>
+
+      <div class="g-actions">
+        <button class="btn btn-sm btn-outline btn-full" onclick="restartGame()">↺ Restart</button>
+        <button class="btn btn-sm btn-ghost btn-full" onclick="openModeOverlay()">⚙ Mode</button>
+        <button class="btn btn-sm btn-ghost btn-full" id="snd-btn" onclick="toggleSound()">🔊 Sound</button>
+        <a href="home.html" class="btn btn-sm btn-danger btn-full" onclick="return confirmExit()">✕ Exit</a>
+      </div>
+
+    </aside>
+
+    <!-- Difficulty Select Screen (shown when no game is active) -->
+    <div id="diff-select-screen" style="display:flex">
+      <div class="g-diff-screen">
+        <div style="font-size:3rem;margin-bottom:10px">🎮</div>
+        <h2 class="grad-text">Choose Difficulty</h2>
+        <p>Pick a mode to start. Flip rules, grid size and timer all change.</p>
+        
+        <div class="g-diff-pick">
+          <button class="g-pick-btn easy" onclick="startGame('easy')">
+            <span class="g-pick-icon">🌿</span>
+            <div class="g-pick-name">Easy</div>
+            <div class="g-pick-info">3×4 grid · 6 pairs<br>150s · 3 flips/turn</div>
+          </button>
+          
+          <button class="g-pick-btn medium" onclick="startGame('medium')">
+            <span class="g-pick-icon">⚡</span>
+            <div class="g-pick-name">Medium</div>
+            <div class="g-pick-info">4×4 grid · 8 pairs<br>120s · 3 flips/turn</div>
+          </button>
+          
+          <button class="g-pick-btn hard" onclick="startGame('hard')">
+            <span class="g-pick-icon">🔥</span>
+            <div class="g-pick-name">Hard</div>
+            <div class="g-pick-info">5×4 grid · 10 pairs<br>90s · 3 flips/turn</div>
+          </button>
+          
+          <button class="g-pick-btn extreme" onclick="startGame('extreme')">
+            <span class="g-pick-icon">☠️</span>
+            <div class="g-pick-name">Extreme</div>
+            <div class="g-pick-info">6×6 grid · 18 pairs<br>120s · 2 flips/turn</div>
+          </button>
+        </div>
+        
+        <div style="margin-top:18px">
+          <a href="home.html" class="btn btn-ghost btn-sm">← Back to Home</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Game Board (hidden until a difficulty is selected) -->
+    <div id="board-area" style="display:none">
+      <div id="card-grid" class="card-grid"></div>
+    </div>
+
+  </div><!-- /.game-root -->
+
+  <!-- ============================================================================
+       MODE OVERLAY (Pause + Pick)
+       ============================================================================ -->
+  <div class="mode-overlay" id="mode-overlay">
+    <div class="mode-overlay-box">
+
+      <div class="mode-overlay-head">
+        <div class="mode-overlay-title">⚙ Switch Mode</div>
+      </div>
+      
+      <p class="mode-overlay-sub">
+        Pick a different difficulty to start fresh, or continue your current game.
+      </p>
+
+      <div class="mode-overlay-grid">
+        <button class="mode-pick-btn easy" onclick="pickNewMode('easy')">
+          <span class="mode-pick-icon">🌿</span>
+          <div class="mode-pick-name">Easy</div>
+          <div class="mode-pick-info">3×4 · 150s<br>3 flips/turn</div>
+        </button>
+        
+        <button class="mode-pick-btn medium" onclick="pickNewMode('medium')">
+          <span class="mode-pick-icon">⚡</span>
+          <div class="mode-pick-name">Medium</div>
+          <div class="mode-pick-info">4×4 · 120s<br>3 flips/turn</div>
+        </button>
+        
+        <button class="mode-pick-btn hard" onclick="pickNewMode('hard')">
+          <span class="mode-pick-icon">🔥</span>
+          <div class="mode-pick-name">Hard</div>
+          <div class="mode-pick-info">5×4 · 90s<br>3 flips/turn</div>
+        </button>
+        
+        <button class="mode-pick-btn extreme" onclick="pickNewMode('extreme')">
+          <span class="mode-pick-icon">☠️</span>
+          <div class="mode-pick-name">Extreme</div>
+          <div class="mode-pick-info">6×6 · 120s<br>2 flips/turn</div>
+        </button>
+      </div>
+
+      <!-- Continue button — closes overlay, resumes game -->
+      <button class="mode-continue-btn" onclick="closeModeOverlay()">
+        ▶ Continue Playing
+      </button>
+
+    </div>
+  </div>
+
+  <!-- ============================================================================
+       WIN MODAL (shown when player wins)
+       ============================================================================ -->
+  <div class="g-modal-overlay" id="modal-win">
+    <div class="g-modal">
+      <div class="g-modal-icon">🎉</div>
+      <h2 class="g-modal-title grad-text">You Won!</h2>
+      <p class="g-modal-sub">All pairs matched — great memory!</p>
+
+      <div class="g-modal-stats">
+        <div>
+          <div class="g-ms-val" id="w-moves">—</div>
+          <div class="g-ms-lbl">Moves</div>
+        </div>
+        <div>
+          <div class="g-ms-val" id="w-time">—</div>
+          <div class="g-ms-lbl">Time Left</div>
+        </div>
+      </div>
+
+      <div class="g-score-box">
+        Final Score: <span id="w-score">0</span>
+      </div>
+      
+      <div style="text-align:center;font-size:1.1rem;font-weight:800;margin-bottom:18px;color:var(--gold)" id="w-rating"></div>
+
+      <div class="g-modal-actions">
+        <button class="btn btn-primary btn-full btn-lg" onclick="restartGame()">🔄 Play Again</button>
+        <button class="btn btn-ghost btn-full" onclick="openModeOverlay();document.getElementById('modal-win').classList.remove('show')">⚙ Change Mode</button>
+        <a href="home.html" class="btn btn-ghost btn-full">🏠 Home</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================================
+       LOSE MODAL (shown when time runs out)
+       ============================================================================ -->
+  <div class="g-modal-overlay" id="modal-lose">
+    <div class="g-modal">
+      <div class="g-modal-icon">⏰</div>
+      <h2 class="g-modal-title" style="color:var(--danger)">Time's Up!</h2>
+      <p class="g-modal-sub">The clock ran out. Give it another shot!</p>
+
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:16px;text-align:center;margin-bottom:20px">
+        <div style="font-size:.78rem;color:var(--text3);margin-bottom:4px">Pairs matched</div>
+        <div style="font-family:'Baloo 2',cursive;font-size:2rem;font-weight:700" id="lose-pairs">—</div>
+      </div>
+
+      <div class="g-modal-actions">
+        <button class="btn btn-primary btn-full btn-lg" onclick="restartGame()">🔄 Try Again</button>
+        <button class="btn btn-outline btn-full" onclick="openModeOverlay();document.getElementById('modal-lose').classList.remove('show')">⚙ Change Mode</button>
+        <a href="home.html" class="btn btn-ghost btn-full">🏠 Home</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="app.js"></script>
+  <script src="game.js"></script>
+  
+  <script>
+    // ============================================================================
+    // PAGE-SPECIFIC JAVASCRIPT
+    // ============================================================================
+    
+    // Authentication guard - redirect to login if not authenticated
+    if (!Auth.requireAuth()) {
+      // This line intentionally left blank - requireAuth handles redirect
+    }
+
+    // Initialize theme system
+    Theme.init();
+
+    // ----------------------------------------------------------------------------
+    // startGame: called from select screen or URL parameter
+    // ----------------------------------------------------------------------------
+    function startGame(difficulty) {
+      const icons = {
+        easy: '🌿',
+        medium: '⚡',
+        hard: '🔥',
+        extreme: '☠️'
+      };
+      
+      const names = {
+        easy: 'Easy',
+        medium: 'Medium',
+        hard: 'Hard',
+        extreme: 'Extremely Hard'
+      };
+      
+      const iconElement = document.getElementById('g-diff-icon');
+      const nameElement = document.getElementById('g-diff-name');
+      
+      if (iconElement) {
+        iconElement.textContent = icons[difficulty] || '🎮';
+      }
+      
+      if (nameElement) {
+        nameElement.textContent = names[difficulty] || difficulty;
+      }
+
+      // Hide difficulty select screen, show game board
+      document.getElementById('diff-select-screen').style.display = 'none';
+      document.getElementById('board-area').style.display = 'flex';
+
+      // Initialize the game with selected difficulty
+      initGame(difficulty);
+    }
+
+    // ----------------------------------------------------------------------------
+    // Mode overlay helper: highlight current mode
+    // ----------------------------------------------------------------------------
+    const originalOpenModeOverlay = openModeOverlay;
+    
+    openModeOverlay = function() {
+      // Get current difficulty from game state
+      const currentDifficulty = state.difficulty || '__none__';
+      
+      // Highlight the active mode button
+      document.querySelectorAll('.mode-pick-btn').forEach(button => {
+        const isCurrent = button.classList.contains(currentDifficulty);
+        button.classList.toggle('current-mode', isCurrent);
+      });
+      
+      // Call original function
+      originalOpenModeOverlay();
+    };
+
+    // ----------------------------------------------------------------------------
+    // Leaderboard navigation with context
+    // ----------------------------------------------------------------------------
+    function goToBoard() {
+      // Save current difficulty so leaderboard can send us back
+      const currentDifficulty = state.difficulty || '';
+      
+      try {
+        sessionStorage.setItem('mm_last_diff', currentDifficulty);
+      } catch (error) {
+        // Silently fail - sessionStorage might be unavailable
+      }
+      
+      window.location.href = 'leaderboard.html';
+    }
+
+    // ----------------------------------------------------------------------------
+    // Exit confirmation (prevents accidental navigation)
+    // ----------------------------------------------------------------------------
+    function confirmExit() {
+      // If game isn't running, no need to confirm
+      if (!state.running) {
+        return true;
+      }
+      
+      // Ask for confirmation
+      return confirm('Exit? Your current game progress will be lost.');
+    }
+
+    // ----------------------------------------------------------------------------
+    // Auto-start from URL parameter 
+    // ----------------------------------------------------------------------------
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlDifficulty = urlParams.get('d') || urlParams.get('difficulty');
+    
+    if (urlDifficulty && CONFIGS[urlDifficulty]) {
+      startGame(urlDifficulty);
+    }
+  </script>
+  
+</body>
+</html>

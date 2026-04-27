@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Memory Master — Leaderboard</title>
+  <link rel="stylesheet" href="style.css"/>
+  
+  <style>
+    /* ============================================================================
+       LEADERBOARD PAGE SPECIFIC STYLES
+       ============================================================================ */
+    
+    /* Hero section */
+    .lb-hero {
+      padding: 44px 0 26px;
+      text-align: center;
+    }
+    
+    .lb-hero h1 {
+      font-family: 'Baloo 2', cursive;
+    }
+    
+    .lb-hero p {
+      color: var(--text2);
+      margin-top: 8px;
+      font-size: 0.95rem;
+    }
+
+    /* ============================================================================
+       MY STATS PANEL — Shows current user's performance
+       ============================================================================ */
+    .my-panel {
+      background: rgba(91, 106, 240, 0.07);
+      border: 1px solid rgba(91, 106, 240, 0.2);
+      border-radius: var(--r-lg);
+      padding: 18px 22px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    
+    .my-panel-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .my-av {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--grad);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.05rem;
+      font-weight: 900;
+      color: #fff;
+      text-transform: uppercase;
+    }
+    
+    .my-name {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+    
+    .my-sub {
+      font-size: 0.75rem;
+      color: var(--text3);
+    }
+    
+    .my-panel-right {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+    
+    .my-stat {
+      text-align: center;
+    }
+    
+    .my-sval {
+      font-family: 'Baloo 2', cursive;
+      font-size: 1.2rem;
+      font-weight: 700;
+      background: var(--grad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .my-slbl {
+      font-size: 0.66rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text3);
+      font-weight: 700;
+    }
+
+    /* ============================================================================
+       TROPHY ROW — Top 3 podium
+       ============================================================================ */
+    .lb-trophy .lb-t-score-line {
+      margin-top: 5px;
+    }
+
+    /* ============================================================================
+       CLEAR BUTTON SECTION
+       ============================================================================ */
+    .clear-btn-wrap {
+      text-align: center;
+      padding-bottom: 48px;
+    }
+
+    /* ============================================================================
+       BACKGROUND BLOBS — Decorative
+       ============================================================================ */
+    .lb-bg-blob {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.06;
+    }
+    
+    [data-theme="dark"] .lb-bg-blob {
+      opacity: 0.1;
+    }
+    
+    .lb-bg-b1 {
+      width: 500px;
+      height: 500px;
+      background: #f0c060;
+      top: -120px;
+      left: -100px;
+    }
+    
+    .lb-bg-b2 {
+      width: 400px;
+      height: 400px;
+      background: #5b6af0;
+      bottom: -100px;
+      right: -80px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================================================
+       DECORATIVE BACKGROUND ELEMENTS
+       ============================================================================ -->
+  <div class="lb-bg-blob lb-bg-b1"></div>
+  <div class="lb-bg-blob lb-bg-b2"></div>
+
+  <!-- ============================================================================
+       NAVIGATION BAR
+       ============================================================================ -->
+  <nav class="navbar" id="navbar"></nav>
+
+  <!-- ============================================================================
+       PROFILE MODAL
+       ============================================================================ -->
+  <div class="profile-overlay" id="profile-overlay" onclick="if(event.target===this) ProfileModal.close()">
+    <div class="profile-modal" id="profile-modal" onclick="event.stopPropagation()"></div>
+  </div>
+
+  <!-- ============================================================================
+       SIDEBAR OVERLAY + SIDEBAR (How to Play / About)
+       ============================================================================ -->
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="Sidebar.close()"></div>
+  
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-brand">
+        <div class="sidebar-brand-icon">🧠</div>
+        <span class="sidebar-brand-name" style="font-family:'Baloo 2',cursive">Memory Master</span>
+      </div>
+      <button class="sidebar-close" onclick="Sidebar.close()">✕</button>
+    </div>
+    
+    <div class="sidebar-nav">
+      <button class="sidebar-nav-btn active" data-sec="howto" onclick="Sidebar.showSection('howto')">
+        🎮 How to Play
+      </button>
+      <button class="sidebar-nav-btn" data-sec="about" onclick="Sidebar.showSection('about')">
+        ℹ️ About
+      </button>
+    </div>
+    
+    <div class="sidebar-body">
+      
+      <!-- How to Play Section -->
+      <div class="sidebar-section visible" id="sec-howto">
+        <div class="how-step">
+          <div class="how-num">1</div>
+          <div>
+            <h4>Choose Difficulty</h4>
+            <p>Pick from Easy, Medium, Hard or Extremely Hard. Each changes the grid size and time.</p>
+          </div>
+        </div>
+        
+        <div class="how-step">
+          <div class="how-num">2</div>
+          <div>
+            <h4>Flip Cards</h4>
+            <p>You get 3 flips per turn (2 in Extreme). Cards stay face-up while you're choosing your turn.</p>
+          </div>
+        </div>
+        
+        <div class="how-step">
+          <div class="how-num">3</div>
+          <div>
+            <h4>Match Pairs</h4>
+            <p>If 2 of your flipped cards match — they stay! Any extra card quietly flips back.</p>
+          </div>
+        </div>
+        
+        <div class="how-step">
+          <div class="how-num">4</div>
+          <div>
+            <h4>Beat the Timer</h4>
+            <p>Match all pairs before time runs out to win and earn your score.</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- About Section -->
+      <div class="sidebar-section" id="sec-about">
+        <div class="about-block">
+          <h4>🧠 About Memory Master</h4>
+          <p>A classic card-matching memory game built with HTML, CSS and JavaScript. No frameworks, no backend — just pure fun!</p>
+        </div>
+        
+        <div class="about-block">
+          <h4>🎯 Goal</h4>
+          <p>Train your short-term memory by finding all matching pairs as fast and accurately as possible.</p>
+        </div>
+        
+        <div class="about-block">
+          <h4>🏆 Scoring</h4>
+          <p>Score = (time left × 12 + accuracy bonus) × difficulty multiplier. Fewer moves + more time = better score.</p>
+        </div>
+      </div>
+      
+    </div>
+  </aside>
+
+  <!-- ============================================================================
+       MAIN LEADERBOARD CONTENT
+       ============================================================================ -->
+  <div class="lb-page page">
+    <div class="container" style="position:relative;z-index:1">
+
+      <!-- Hero Section -->
+      <div class="lb-hero">
+        <div class="lb-hero-icon">🏆</div>
+        <h1 class="grad-text">Hall of Fame</h1>
+        <p>Top scores across all players and modes</p>
+      </div>
+
+      <!-- My Score Panel (hidden by default, shown via JavaScript) -->
+      <div class="my-panel" id="my-panel" style="display:none"></div>
+
+      <!-- Trophy Podium (Top 3) -->
+      <div class="lb-trophy-row" id="trophy-row"></div>
+
+      <!-- Filter Buttons -->
+      <div class="lb-filters">
+        <button class="lb-fbtn active" data-f="all" onclick="setFilter('all')">🌐 All</button>
+        <button class="lb-fbtn" data-f="easy" onclick="setFilter('easy')">🌿 Easy</button>
+        <button class="lb-fbtn" data-f="medium" onclick="setFilter('medium')">⚡ Medium</button>
+        <button class="lb-fbtn" data-f="hard" onclick="setFilter('hard')">🔥 Hard</button>
+        <button class="lb-fbtn" data-f="extreme" onclick="setFilter('extreme')">☠️ Extreme</button>
+      </div>
+
+      <!-- Scores Table -->
+      <div class="lb-table-wrap">
+        <table class="lb-tbl">
+          <thead>
+            <tr>
+              <th style="width:46px">#</th>
+              <th>Player</th>
+              <th>Level</th>
+              <th>Score</th>
+              <th>Moves</th>
+              <th>Time Left</th>
+              <th>When</th>
+            </tr>
+          </thead>
+          <tbody id="lb-body"></tbody>
+        </table>
+        
+        <!-- Empty State (shown when no scores) -->
+        <div class="lb-empty hidden" id="lb-empty">
+          <div class="lb-empty-icon">🎮</div>
+          <div class="lb-empty-t">No scores yet!</div>
+          <p style="font-size:.85rem">Play a game to get on the board.</p>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;padding-bottom:48px">
+        <a href="home.html" class="btn btn-primary">🏠 Home</a>
+        <button class="btn btn-ghost btn-sm" onclick="clearMyScores()" style="color:var(--danger)">
+          🗑 Clear My Scores
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="app.js"></script>
+  
+  <script>
+    // ============================================================================
+    // LEADERBOARD PAGE JAVASCRIPT
+    // ============================================================================
+    
+    // ----------------------------------------------------------------------------
+    // Initialization
+    // ----------------------------------------------------------------------------
+    
+    // Authentication guard - redirect to login if not authenticated
+    if (!Auth.requireAuth()) {
+      // This line intentionally left blank - requireAuth handles redirect
+    }
+    
+    // Initialize theme system
+    Theme.init();
+    
+    // Render navigation bar with user info and back button
+    Navbar.render({ 
+      showUser: true, 
+      backButton: 'home.html' 
+    });
+
+    // Set up event listeners for sidebar and profile
+    const logoButton = document.getElementById('nav-logo-btn');
+    if (logoButton) {
+      logoButton.addEventListener('click', () => Sidebar.open('howto'));
+    }
+    
+    const profileButton = document.getElementById('nav-profile-btn');
+    if (profileButton) {
+      profileButton.addEventListener('click', () => ProfileModal.open());
+    }
+
+    // ----------------------------------------------------------------------------
+    // State Variables
+    // ----------------------------------------------------------------------------
+    
+    let currentFilter = 'all';  // Current filter (all, easy, medium, hard, extreme)
+    const currentUser = Auth.getCurrentUser();  // Currently logged in user
+
+    // ----------------------------------------------------------------------------
+    // Render Functions
+    // ----------------------------------------------------------------------------
+    
+    /**
+     * Render the trophy podium (top 3 scores)
+     */
+    function renderTrophies() {
+      // Get top 3 scores
+      const allScores = Leaderboard.getAll();
+      const topThree = allScores
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 3);
+      
+      const trophyRow = document.getElementById('trophy-row');
+      
+      // Medal configurations
+      const medals = [
+        { cls: 'gold',   icon: '🥇', position: '1st' },
+        { cls: 'silver', icon: '🥈', position: '2nd' },
+        { cls: 'bronze', icon: '🥉', position: '3rd' },
+      ];
+      
+      // Handle empty state
+      if (!topThree.length) {
+        trophyRow.innerHTML = `<p style="color:var(--text3);text-align:center">No scores yet. Be the first!</p>`;
+        return;
+      }
+      
+      // Generate trophy HTML
+      const difficultyIcons = {
+        easy: '🌿',
+        medium: '⚡',
+        hard: '🔥',
+        extreme: '☠️'
+      };
+      
+      trophyRow.innerHTML = topThree.map((score, index) => {
+        const medal = medals[index];
+        const isCurrentUser = (score.username === currentUser.username);
+        const star = isCurrentUser ? ' ★' : '';
+        
+        return `
+          <div class="lb-trophy ${medal.cls}">
+            <div class="lb-t-medal">${medal.icon}</div>
+            <div class="lb-t-pos">${medal.position}</div>
+            <div class="lb-t-name">${score.username}${star}</div>
+            <div class="lb-t-score">${score.score.toLocaleString()}</div>
+            <div style="margin-top:6px">
+              <span class="badge badge-${score.difficulty}">
+                ${difficultyIcons[score.difficulty] || ''} ${score.difficulty}
+              </span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    /**
+     * Render the "My Stats" panel showing current user's performance
+     */
+    function renderMyPanel() {
+      const panelElement = document.getElementById('my-panel');
+      const userStats = Leaderboard.getUserStats(currentUser.username);
+      const bestScore = Leaderboard.getUserBest(currentUser.username);
+      
+      // Hide panel if user has no scores
+      if (!bestScore) {
+        panelElement.style.display = 'none';
+        return;
+      }
+
+      // Calculate user's rank
+      const allScores = Leaderboard.getAll()
+        .sort((a, b) => b.score - a.score);
+      
+      const rankIndex = allScores.findIndex(score => 
+        score.username === currentUser.username && score.score === bestScore.score
+      ) + 1;
+      
+      const userInitial = currentUser.username[0].toUpperCase();
+
+      // Show panel with stats
+      panelElement.style.display = 'flex';
+      panelElement.innerHTML = `
+        <div class="my-panel-left">
+          <div class="my-av">${userInitial}</div>
+          <div>
+            <div class="my-name">${currentUser.username}</div>
+            <div class="my-sub">Your best performance</div>
+          </div>
+        </div>
+        <div class="my-panel-right">
+          <div class="my-stat">
+            <div class="my-sval">#${rankIndex}</div>
+            <div class="my-slbl">Rank</div>
+          </div>
+          <div class="my-stat">
+            <div class="my-sval">${bestScore.score.toLocaleString()}</div>
+            <div class="my-slbl">Best Score</div>
+          </div>
+          <div class="my-stat">
+            <div class="my-sval">${userStats.games}</div>
+            <div class="my-slbl">Games</div>
+          </div>
+          <div class="my-stat">
+            <div class="my-sval">${bestScore.difficulty.charAt(0).toUpperCase() + bestScore.difficulty.slice(1)}</div>
+            <div class="my-slbl">Best Level</div>
+          </div>
+        </div>
+      `;
+    }
+
+    /**
+     * Render the scores table
+     * @param {string} filter - Difficulty filter to apply
+     */
+    function renderTable(filter = 'all') {
+      // Get filtered and sorted scores
+      const scores = Leaderboard.getFiltered(filter)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 60);  // Limit to top 60
+      
+      const tableBody = document.getElementById('lb-body');
+      const emptyState = document.getElementById('lb-empty');
+      
+      // Handle empty state
+      if (!scores.length) {
+        tableBody.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+      
+      emptyState.classList.add('hidden');
+      
+      // Rank styling helper
+      const getRankClass = (rank) => {
+        if (rank === 1) return 'lb-rank g';      // Gold
+        if (rank === 2) return 'lb-rank s';      // Silver
+        if (rank === 3) return 'lb-rank b';      // Bronze
+        return 'lb-rank';                         // Regular
+      };
+      
+      // Difficulty icons
+      const difficultyIcons = {
+        easy: '🌿',
+        medium: '⚡',
+        hard: '🔥',
+        extreme: '☠️'
+      };
+      
+      // Generate table rows
+      tableBody.innerHTML = scores.map((score, index) => {
+        const rank = index + 1;
+        const isCurrentUser = (score.username === currentUser.username);
+        const star = isCurrentUser ? ' ★' : '';
+        const rowClass = isCurrentUser ? 'me' : '';
+        
+        return `
+          <tr class="${rowClass}">
+            <td><span class="${getRankClass(rank)}">${rank}</span></td>
+            <td>
+              <div class="lb-user">
+                <div class="lb-av">${score.username[0].toUpperCase()}</div>
+                <span class="lb-uname">${score.username}${star}</span>
+              </div>
+            </td>
+            <td>
+              <span class="badge badge-${score.difficulty}">
+                ${difficultyIcons[score.difficulty] || ''} ${score.difficulty}
+              </span>
+            </td>
+            <td><span class="lb-sval">${score.score.toLocaleString()}</span></td>
+            <td style="font-weight:600;color:var(--text2)">${score.moves}</td>
+            <td style="font-weight:600;color:var(--text2)">${formatTime(score.timeLeft)}</td>
+            <td class="lb-date">${timeAgo(score.date)}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // ----------------------------------------------------------------------------
+    // Filter Functions
+    // ----------------------------------------------------------------------------
+    
+    /**
+     * Set the current filter and re-render the table
+     * @param {string} filter - Filter to apply
+     */
+    function setFilter(filter) {
+      currentFilter = filter;
+      
+      // Update active button state
+      document.querySelectorAll('.lb-fbtn').forEach(button => {
+        const isActive = (button.dataset.f === filter);
+        button.classList.toggle('active', isActive);
+      });
+      
+      // Re-render table with new filter
+      renderTable(filter);
+    }
+
+    // ----------------------------------------------------------------------------
+    // Score Management
+    // ----------------------------------------------------------------------------
+    
+    /**
+     * Clear all scores for the current user
+     */
+    function clearMyScores() {
+      // Confirm with user
+      const userConfirmed = confirm(`Delete all of your scores? This cannot be undone.`);
+      
+      if (!userConfirmed) {
+        return;
+      }
+      
+      // Clear scores
+      Leaderboard.clearUser(currentUser.username);
+      
+      // Show confirmation
+      Toast.show('Your scores cleared.', 'info');
+      
+      // Re-render everything
+      renderAll();
+    }
+
+    // ----------------------------------------------------------------------------
+    // Master Render Function
+    // ----------------------------------------------------------------------------
+    
+    /**
+     * Render all leaderboard components
+     */
+    function renderAll() {
+      renderTrophies();
+      renderMyPanel();
+      renderTable(currentFilter);
+    }
+
+    // ----------------------------------------------------------------------------
+    // Initial Render
+    // ----------------------------------------------------------------------------
+    
+    renderAll();
+  </script>
+  
+</body>
+</html>

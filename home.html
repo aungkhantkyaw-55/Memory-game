@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Memory Master — Home</title>
+  <link rel="stylesheet" href="style.css"/>
+  
+  <style>
+    /* ============================================================================
+       BACKGROUND BLOBS — Decorative floating elements
+       ============================================================================ */
+    .home-bg-blob {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(110px);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 0;
+      transition: opacity 0.5s;
+    }
+    
+    [data-theme="light"] .home-bg-blob {
+      opacity: 0.07;
+    }
+    
+    [data-theme="dark"] .home-bg-blob {
+      opacity: 0.1;
+    }
+    
+    .home-bg-blob-1 {
+      width: 500px;
+      height: 500px;
+      background: #5b6af0;
+      top: -140px;
+      right: -80px;
+    }
+    
+    .home-bg-blob-2 {
+      width: 380px;
+      height: 380px;
+      background: #9c6ef0;
+      bottom: -80px;
+      left: -60px;
+    }
+
+    /* ============================================================================
+       MAIN CONTENT LAYER
+       ============================================================================ */
+    .home-content {
+      position: relative;
+      z-index: 1;
+      padding: 32px 0 60px;
+    }
+
+    /* ============================================================================
+       DIFFICULTY CARD COLOR VARIANTS
+       ============================================================================ */
+    .diff-card.d-easy .diff-title {
+      color: #16a34a;
+    }
+    
+    .diff-card.d-medium .diff-title {
+      color: #d97706;
+    }
+    
+    .diff-card.d-hard .diff-title {
+      color: #dc2626;
+    }
+    
+    .diff-card.d-extreme .diff-title {
+      color: #7c3aed;
+    }
+
+    .diff-card-top {
+      margin-bottom: 10px;
+    }
+
+    /* ============================================================================
+       QUICK LINKS SECTION
+       ============================================================================ */
+    .quick-links {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 32px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================================================
+       DECORATIVE BACKGROUND ELEMENTS
+       ============================================================================ -->
+  <div class="home-bg-blob home-bg-blob-1"></div>
+  <div class="home-bg-blob home-bg-blob-2"></div>
+
+  <!-- ============================================================================
+       NAVIGATION BAR (rendered by JavaScript)
+       ============================================================================ -->
+  <nav class="navbar" id="navbar"></nav>
+
+  <!-- ============================================================================
+       USER PROFILE MODAL (hidden by default)
+       ============================================================================ -->
+  <div class="profile-overlay" id="profile-overlay" onclick="handleOverlayClick(event)">
+    <div class="profile-modal" id="profile-modal" onclick="event.stopPropagation()">
+      <!-- Profile content will be injected by JavaScript -->
+    </div>
+  </div>
+
+  <!-- ============================================================================
+       SIDEBAR OVERLAY (click to close)
+       ============================================================================ -->
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="Sidebar.close()"></div>
+
+  <!-- ============================================================================
+       SIDEBAR MENU — How to Play & About
+       ============================================================================ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-brand">
+        <div class="sidebar-brand-icon">🧠</div>
+        <span class="sidebar-brand-name" style="font-family:'Baloo 2',cursive">Memory Master</span>
+      </div>
+      <button class="sidebar-close" onclick="Sidebar.close()">✕</button>
+    </div>
+
+    <div class="sidebar-nav">
+      <button class="sidebar-nav-btn active" data-sec="howto" onclick="Sidebar.showSection('howto')">
+        🎮 How to Play
+      </button>
+      <button class="sidebar-nav-btn" data-sec="about" onclick="Sidebar.showSection('about')">
+        ℹ️ About
+      </button>
+    </div>
+
+    <div class="sidebar-body">
+
+      <!-- ===== HOW TO PLAY SECTION ===== -->
+      <div class="sidebar-section visible" id="sec-howto">
+        
+        <div class="how-step">
+          <div class="how-num">1</div>
+          <div>
+            <h4>Choose a Difficulty</h4>
+            <p>Pick Easy, Medium, Hard or Extremely Hard. Each mode has a different grid size and time limit. Harder = more cards, less time.</p>
+          </div>
+        </div>
+        
+        <div class="how-step">
+          <div class="how-num">2</div>
+          <div>
+            <h4>Flip Your Cards</h4>
+            <p>You can flip <strong>3 cards per turn</strong> (2 in Extreme). The cards you flipped stay face-up while you're choosing.</p>
+          </div>
+        </div>
+        
+        <div class="how-step">
+          <div class="how-num">3</div>
+          <div>
+            <h4>Find the Pair</h4>
+            <p>If two of your flipped cards match, they stay matched! Any extra card you flipped quietly flips back. No match? All flip back.</p>
+          </div>
+        </div>
+        
+        <div class="how-step">
+          <div class="how-num">4</div>
+          <div>
+            <h4>Beat the Timer</h4>
+            <p>Match every pair before the countdown hits zero. The clock ticks from the moment you flip your first card.</p>
+          </div>
+        </div>
+        
+        <div class="how-step">
+          <div class="how-num">5</div>
+          <div>
+            <h4>Earn Your Score</h4>
+            <p>Score = (time left × 12 + accuracy bonus) × difficulty multiplier. Fewer moves + more time = higher score!</p>
+          </div>
+        </div>
+        
+      </div>
+
+      <!-- ===== ABOUT THIS GAME SECTION ===== -->
+      <div class="sidebar-section" id="sec-about">
+        
+        <div class="about-block">
+          <h4>🧠 What is Memory Master?</h4>
+          <p>This is a simple memory card game built using HTML, CSS and JavaScript.</p>
+        </div>
+        
+        <div class="about-block">
+          <h4>🎯 Game Purpose</h4>
+          <p>The game is designed to improve short-term memory and concentration. Each difficulty level trains your brain a little harder and see how fast you can recall where every card is!</p>
+        </div>
+        
+        <div class="about-block">
+          <h4>⚡ The 3-Flip System</h4>
+          <p>Unlike most memory games, you get to flip <strong>3 cards per turn</strong> (Easy / Medium / Hard). If any two of those three match, they stay revealed and the third flips back. This makes the game faster, friendlier and more interesting!</p>
+        </div>
+        
+        <div class="about-block">
+          <h4>🏆 Leaderboard</h4>
+          <p>All scores are saved locally on your device. Check the Leaderboard to see top scores across all players and difficulties. Can you reach #1?</p>
+        </div>
+        
+        <div class="about-block">
+          <h4>🛠 Tech Stack</h4>
+          <p>Built with HTML, CSS and JavaScript. No frameworks. Data saved using browser LocalStorage. Fonts from Google Fonts.</p>
+        </div>
+        
+      </div>
+
+    </div>
+  </aside>
+
+  <!-- ============================================================================
+       MAIN PAGE CONTENT
+       ============================================================================ -->
+  <div class="home-page">
+    <div class="container home-content">
+
+      <!-- ===== WELCOME SECTION ===== -->
+      <section class="home-hero">
+        <p class="home-welcome">👋 Hello</p>
+        <h1 class="home-title">
+          Welcome, <span class="grad-text" id="hero-name">Player</span>!
+        </h1>
+        <p class="home-subtitle" id="hero-sub">
+          Ready to train your memory? Pick a difficulty below and let's go!
+        </p>
+      </section>
+
+      <!-- ===== DIFFICULTY CARDS SECTION ===== -->
+      <section style="margin-bottom:28px">
+        <div class="section-label">Choose Your Challenge</div>
+        
+        <div class="diff-grid">
+
+          <!-- Easy Mode Card -->
+          <a href="game.html?d=easy" class="diff-card d-easy">
+            <div class="diff-card-head">
+              <span class="diff-icon">🌿</span>
+              <span class="badge badge-easy">Easy</span>
+            </div>
+            <div class="diff-title">Easy Mode</div>
+            <div class="diff-desc">3 × 4 grid · 6 pairs to find</div>
+            <div class="diff-tags">
+              <span class="diff-tag">⏱ 150s</span>
+              <span class="diff-tag">🔄 3 flips/turn</span>
+              <span class="diff-tag">Beginner friendly</span>
+            </div>
+          </a>
+
+          <!-- Medium Mode Card -->
+          <a href="game.html?d=medium" class="diff-card d-medium">
+            <div class="diff-card-head">
+              <span class="diff-icon">⚡</span>
+              <span class="badge badge-medium">Medium</span>
+            </div>
+            <div class="diff-title">Medium Mode</div>
+            <div class="diff-desc">4 × 4 grid · 8 pairs to find</div>
+            <div class="diff-tags">
+              <span class="diff-tag">⏱ 120s</span>
+              <span class="diff-tag">🔄 3 flips/turn</span>
+              <span class="diff-tag">Getting warmer</span>
+            </div>
+          </a>
+
+          <!-- Hard Mode Card -->
+          <a href="game.html?d=hard" class="diff-card d-hard">
+            <div class="diff-card-head">
+              <span class="diff-icon">🔥</span>
+              <span class="badge badge-hard">Hard</span>
+            </div>
+            <div class="diff-title">Hard Mode</div>
+            <div class="diff-desc">5 × 4 grid · 10 pairs to find</div>
+            <div class="diff-tags">
+              <span class="diff-tag">⏱ 90s</span>
+              <span class="diff-tag">🔄 3 flips/turn</span>
+              <span class="diff-tag">Real challenge</span>
+            </div>
+          </a>
+
+          <!-- Extreme Mode Card -->
+          <a href="game.html?d=extreme" class="diff-card d-extreme">
+            <div class="diff-card-head">
+              <span class="diff-icon">☠️</span>
+              <span class="badge badge-extreme">Extreme</span>
+            </div>
+            <div class="diff-title">Extremely Hard</div>
+            <div class="diff-desc">6 × 6 grid · 18 pairs to find</div>
+            <div class="diff-tags">
+              <span class="diff-tag">⏱ 120s</span>
+              <span class="diff-tag">🔄 2 flips/turn</span>
+              <span class="diff-tag">💀 Good luck</span>
+            </div>
+          </a>
+
+        </div>
+      </section>
+
+      <!-- ===== EXTRA BUTTONS ===== -->
+      <div class="quick-links">
+        <a href="leaderboard.html" class="btn btn-outline">🏆 Leaderboard</a>
+        <button class="btn btn-ghost" onclick="Auth.logout()">🚪 Sign Out</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="app.js"></script>
+  
+  <script>
+    // ============================================================================
+    // PAGE-SPECIFIC JAVASCRIPT
+    // ============================================================================
+    
+    // Authentication guard - redirect to login if not authenticated
+    if (!Auth.requireAuth()) {
+      // This line intentionally left blank - requireAuth handles redirect
+    }
+
+    // Initialize theme system
+    Theme.init();
+
+    // Render the navigation bar with user info
+    Navbar.render({ 
+      showUser: true, 
+      showLeaderboard: false 
+    });
+
+    // ----------------------------------------------------------------------------
+    // Event Listeners
+    // ----------------------------------------------------------------------------
+    
+    // Sidebar opens when clicking the logo
+    const logoButton = document.getElementById('nav-logo-btn');
+    if (logoButton) {
+      logoButton.addEventListener('click', () => Sidebar.open('howto'));
+    }
+
+    // Profile button opens the profile modal
+    const profileButton = document.getElementById('nav-profile-btn');
+    if (profileButton) {
+      profileButton.addEventListener('click', () => ProfileModal.open());
+    }
+
+    // ----------------------------------------------------------------------------
+    // Helper Functions
+    // ----------------------------------------------------------------------------
+    
+    /**
+     * Handle clicks on the profile overlay
+     * Closes the modal if clicking outside the modal content
+     */
+    function handleOverlayClick(event) {
+      const overlay = document.getElementById('profile-overlay');
+      if (event.target === overlay) {
+        ProfileModal.close();
+      }
+    }
+
+    // ----------------------------------------------------------------------------
+    // Initialize Homepage Content
+    // ----------------------------------------------------------------------------
+    (function initializeHomepage() {
+      // Get current user
+      const currentUser = Auth.getCurrentUser();
+      
+      // If no user is logged in, exit (though requireAuth should have redirected)
+      if (!currentUser) return;
+      
+      // Update welcome message with username
+      const heroNameElement = document.getElementById('hero-name');
+      if (heroNameElement) {
+        heroNameElement.textContent = currentUser.username;
+      }
+
+      // Get user stats and update subtitle
+      const userStats = Leaderboard.getUserStats(currentUser.username);
+      const subtitleElement = document.getElementById('hero-sub');
+      
+      if (subtitleElement && userStats.games > 0) {
+        const gameCount = userStats.games;
+        const gameText = gameCount === 1 ? 'game' : 'games';
+        const bestScore = userStats.best.toLocaleString();
+        
+        subtitleElement.textContent = `You've played ${gameCount} ${gameText} · Best score: ${bestScore} pts. Keep it up!`;
+      }
+      // If no games played, keep the default message
+    })();
+  </script>
+  
+</body>
+</html>
