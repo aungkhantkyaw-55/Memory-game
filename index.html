@@ -1,338 +1,252 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Memory Master — Welcome</title>
-  <link rel="stylesheet" href="style.css"/>
-  
-  <style>
-    .auth-form-side {
-      position: relative;
-      background: var(--surface);
-      border-right: 1px solid var(--border);
-    }
-    
-    .auth-form-side::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(ellipse at 80% 10%, rgba(91, 106, 240, 0.06) 0%, transparent 65%);
-      pointer-events: none;
-    }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Memory Master — Welcome</title>
+<link rel="stylesheet" href="style.css"/>
+<style>
+/* Auth page-specific tweaks */
+.auth-form-side {
+  position: relative;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+}
+/* Light subtle bg on form side */
+.auth-form-side::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 80% 10%, rgba(91,106,240,.06) 0%, transparent 65%);
+  pointer-events: none;
+}
+</style>
 </head>
 <body>
-  <div class="auth-wrap">
 
-    <div class="auth-panel auth-form-side">
-      <div class="auth-inner">
+<div class="auth-wrap">
 
-        <div class="auth-brand">
-          <div class="auth-brand-icon">🧠</div>
-          <div>
-            <div class="auth-brand-name" style="font-family:'Baloo 2',cursive">Memory Master</div>
-            <div class="auth-brand-sub">Card Matching Game</div>
-          </div>
-          <button class="theme-btn" style="margin-left:auto" title="Toggle theme"></button>
+  <!-- ── Form Side ── -->
+  <div class="auth-panel auth-form-side">
+    <div class="auth-inner">
+
+      <!-- Brand + theme toggle -->
+      <div class="auth-brand">
+        <div class="auth-brand-icon">🧠</div>
+        <div>
+          <div class="auth-brand-name" style="font-family:'Baloo 2',cursive">Memory Master</div>
+          <div class="auth-brand-sub">Card Matching Game</div>
         </div>
-
-        <div class="auth-tabs">
-          <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">
-            Sign In
-          </button>
-          <button class="auth-tab" id="tab-register" onclick="switchTab('register')">
-            Register
-          </button>
-        </div>
-
-        <div id="form-login" class="auth-form">
-          
-          <div>
-            <h2 class="auth-heading">Welcome! 👋</h2>
-            <p class="auth-sub">Login to start playing!</p>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="l-user">Username</label>
-            <div class="input-icon-wrap">
-              <span class="input-icon">👤</span>
-              <input 
-                class="form-input" 
-                type="text" 
-                id="l-user"
-                placeholder="Your username" 
-                maxlength="20"
-                autocomplete="username" 
-                onkeydown="if(event.key==='Enter') doLogin()"
-              />
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="l-pass">Password</label>
-            <div class="input-icon-wrap">
-              <span class="input-icon">🔒</span>
-              <input 
-                class="form-input" 
-                type="password" 
-                id="l-pass"
-                placeholder="Your password" 
-                maxlength="60"
-                autocomplete="current-password" 
-                onkeydown="if(event.key==='Enter') doLogin()"
-              />
-            </div>
-            <span class="form-error" id="l-err"></span>
-          </div>
-
-          <button class="btn btn-primary btn-full btn-lg" id="l-btn" onclick="doLogin()">
-            Sign In →
-          </button>
-
-          <p style="text-align:center;font-size:.85rem;color:var(--text3)">
-            No account? <a href="#" onclick="switchTab('register')">Create one</a>
-          </p>
-        </div>
-
-        <div id="form-register" class="auth-form hidden">
-          
-          <div>
-            <h2 class="auth-heading">Welcome! 🎉</h2>
-            <p class="auth-sub">Create your account and start flipping.</p>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="r-user">Username</label>
-            <div class="input-icon-wrap">
-              <span class="input-icon">👤</span>
-              <input 
-                class="form-input" 
-                type="text" 
-                id="r-user"
-                placeholder="Pick a username (3–20 chars)" 
-                maxlength="20"
-                autocomplete="username" 
-                onkeydown="if(event.key==='Enter') doRegister()"
-              />
-            </div>
-            <small style="color:var(--text3);font-size:.76rem;margin-top:1px">
-              Letters, numbers, _ or - only
-            </small>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="r-pass">Password</label>
-            <div class="input-icon-wrap">
-              <span class="input-icon">🔒</span>
-              <input 
-                class="form-input" 
-                type="password" 
-                id="r-pass"
-                placeholder="Min. 4 characters" 
-                maxlength="60"
-                autocomplete="new-password" 
-                onkeydown="if(event.key==='Enter') doRegister()"
-              />
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="r-pass2">Confirm Password</label>
-            <div class="input-icon-wrap">
-              <span class="input-icon">🔐</span>
-              <input 
-                class="form-input" 
-                type="password" 
-                id="r-pass2"
-                placeholder="Repeat password" 
-                maxlength="60"
-                autocomplete="new-password" 
-                onkeydown="if(event.key==='Enter') doRegister()"
-              />
-            </div>
-            <span class="form-error" id="r-err"></span>
-            <span class="form-success" id="r-ok"></span>
-          </div>
-
-          <button class="btn btn-primary btn-full btn-lg" id="r-btn" onclick="doRegister()">
-            Create Account →
-          </button>
-
-          <p style="text-align:center;font-size:.85rem;color:var(--text3)">
-            Have an account? <a href="#" onclick="switchTab('login')">Sign in</a>
-          </p>
-        </div>
-
+        <button class="theme-btn" style="margin-left:auto" title="Toggle theme"></button>
       </div>
-    </div>
 
-    <div class="auth-panel auth-hero-side">
-      
-      <div class="h-orb h-orb-1"></div>
-      <div class="h-orb h-orb-2"></div>
-      <div class="h-orb h-orb-3"></div>
+      <!-- Tabs -->
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tab-login"    onclick="switchTab('login')">Sign In</button>
+        <button class="auth-tab"        id="tab-register" onclick="switchTab('register')">Register</button>
+      </div>
 
-      <div class="auth-hero-content">
-        <span class="auth-hero-icon">🧠</span>
-        <h1 class="auth-hero-title">
-          Memory<br/>Master
-        </h1>
-        <p class="auth-hero-desc">
-          Flip, match and conquer as you test your memory across three challenging difficulty levels. 
-          Stay sharp, beat the clock and see if you can master every stage!
+      <!-- LOGIN FORM -->
+      <div id="form-login" class="auth-form">
+        <div>
+          <h2 class="auth-heading">Welcome! 👋</h2>
+          <p class="auth-sub">Sign in to continue your adventure.</p>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="l-user">Username</label>
+          <div class="input-icon-wrap">
+            <span class="input-icon">👤</span>
+            <input class="form-input" type="text" id="l-user"
+              placeholder="Your username" maxlength="20"
+              autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()"/>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="l-pass">Password</label>
+          <div class="input-icon-wrap">
+            <span class="input-icon">🔒</span>
+            <input class="form-input" type="password" id="l-pass"
+              placeholder="Your password" maxlength="60"
+              autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/>
+          </div>
+          <span class="form-error" id="l-err"></span>
+        </div>
+
+        <button class="btn btn-primary btn-full btn-lg" id="l-btn" onclick="doLogin()">
+          Sign In →
+        </button>
+
+        <p style="text-align:center;font-size:.85rem;color:var(--text3)">
+          No account? <a href="#" onclick="switchTab('register')">Create one</a>
         </p>
       </div>
-      
-    </div>
 
+      <!-- REGISTER FORM -->
+      <div id="form-register" class="auth-form hidden">
+        <div>
+          <h2 class="auth-heading">Welcome! 🎉</h2>
+          <p class="auth-sub">Create your account and start flipping.</p>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="r-user">Username</label>
+          <div class="input-icon-wrap">
+            <span class="input-icon">👤</span>
+            <input class="form-input" type="text" id="r-user"
+              placeholder="Pick a username (3–20 chars)" maxlength="20"
+              autocomplete="username" onkeydown="if(event.key==='Enter')doRegister()"/>
+          </div>
+          <span class="form-error" id="r-user-err"></span>
+          <small style="color:var(--text3);font-size:.76rem;margin-top:1px">Letters, numbers, _ or - only (no spaces)</small>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="r-pass">Password</label>
+          <div class="input-icon-wrap">
+            <span class="input-icon">🔒</span>
+            <input class="form-input" type="password" id="r-pass"
+              placeholder="Min. 4 characters" maxlength="60"
+              autocomplete="new-password" onkeydown="if(event.key==='Enter')doRegister()"/>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="r-pass2">Confirm Password</label>
+          <div class="input-icon-wrap">
+            <span class="input-icon">🔐</span>
+            <input class="form-input" type="password" id="r-pass2"
+              placeholder="Repeat password" maxlength="60"
+              autocomplete="new-password" onkeydown="if(event.key==='Enter')doRegister()"/>
+          </div>
+          <span class="form-error"   id="r-err"></span>
+          <span class="form-success" id="r-ok"></span>
+        </div>
+
+        <button class="btn btn-primary btn-full btn-lg" id="r-btn" onclick="doRegister()">
+          Create Account →
+        </button>
+
+        <p style="text-align:center;font-size:.85rem;color:var(--text3)">
+          Have an account? <a href="#" onclick="switchTab('login')">Sign in</a>
+        </p>
+      </div>
+
+    </div>
   </div>
 
-  <!-- Scripts -->
-  <script src="app.js"></script>
-  
-  <script>
-    // Redirect if already signed in
-    if (Auth.isLoggedIn()) {
-      window.location.href = 'home.html';
-    }
+  <!-- ── Hero Side ── -->
+  <div class="auth-panel auth-hero-side">
+    <div class="h-orb h-orb-1"></div>
+    <div class="h-orb h-orb-2"></div>
+    <div class="h-orb h-orb-3"></div>
 
-    // Initialize theme system
-    Theme.init();
+    <div class="auth-hero-content">
+      <span class="auth-hero-icon">🧠</span>
+      <h1 class="auth-hero-title">Memory<br/>Master</h1>
+      <p class="auth-hero-desc">
+        Flip, match and conquer as you test your memory across three challenging difficulty levels. Stay sharp, beat the clock and see if you can master every stage!
+      </p>
+    </div>
+  </div>
 
-    // TAB SWITCHING
-    
-    /**
-     * Switch between login and registration tabs
-     */
-    function switchTab(tab) {
-      const isLogin = (tab === 'login');
-      
-      // Update tab button states
-      const loginTab = document.getElementById('tab-login');
-      const registerTab = document.getElementById('tab-register');
-      
-      loginTab.classList.toggle('active', isLogin);
-      registerTab.classList.toggle('active', !isLogin);
-      
-      // Show/hide forms
-      const loginForm = document.getElementById('form-login');
-      const registerForm = document.getElementById('form-register');
-      
-      loginForm.classList.toggle('hidden', !isLogin);
-      registerForm.classList.toggle('hidden', isLogin);
-      
-      // Clear all error/success messages
-      const messageIds = ['l-err', 'r-err', 'r-ok'];
-      
-      messageIds.forEach(id => {
-        const element = document.getElementById(id);
-        if (element) {
-          element.textContent = '';
-        }
-      });
-    }
+</div>
 
-    // LOGIN HANDLER
-    
-    /**
-     * Process login form submission
-     */
-    function doLogin() {
-      // Get form values
-      const username = document.getElementById('l-user').value;
-      const password = document.getElementById('l-pass').value;
-      
-      // Get UI elements
-      const errorElement = document.getElementById('l-err');
-      const buttonElement = document.getElementById('l-btn');
-      
-      // Clear previous error
-      errorElement.textContent = '';
-      
-      // Disable button and show loading state
-      buttonElement.disabled = true;
-      buttonElement.textContent = 'Signing in…';
-      
-      // Simulate slight delay for better UX
-      setTimeout(() => {
-        // Attempt login
-        const result = Auth.login(username, password);
-        
-        if (result.ok) {
-          // Login successful
-          buttonElement.textContent = '✓ Done!';
-          
-          // Redirect to home page
-          setTimeout(() => {
-            window.location.href = 'home.html';
-          }, 380);
-        } else {
-          // Login failed - show error
-          errorElement.textContent = result.msg;
-          
-          // Re-enable button
-          buttonElement.disabled = false;
-          buttonElement.textContent = 'Sign In →';
-        }
-      }, 250);
-    }
+<script src="app.js"></script>
+<script>
+  // Redirect if already signed in
+  if (Auth.isLoggedIn()) window.location.href = 'home.html';
 
-    // REGISTRATION HANDLER
-    
-    /**
-     * Process registration form submission
-     */
-    function doRegister() {
-      // Get form values
-      const username = document.getElementById('r-user').value;
-      const password = document.getElementById('r-pass').value;
-      const confirmPassword = document.getElementById('r-pass2').value;
-      
-      // Get UI elements
-      const errorElement = document.getElementById('r-err');
-      const successElement = document.getElementById('r-ok');
-      const buttonElement = document.getElementById('r-btn');
-      
-      // Clear previous messages
-      errorElement.textContent = '';
-      successElement.textContent = '';
-      
-      // Validate passwords match
-      if (password !== confirmPassword) {
-        errorElement.textContent = 'Passwords do not match.';
-        return;
+  // Theme
+  Theme.init();
+
+  function switchTab(tab) {
+    const isLogin = tab === 'login';
+    document.getElementById('tab-login').classList.toggle('active', isLogin);
+    document.getElementById('tab-register').classList.toggle('active', !isLogin);
+    document.getElementById('form-login').classList.toggle('hidden', !isLogin);
+    document.getElementById('form-register').classList.toggle('hidden', isLogin);
+    ['l-err','r-user-err','r-err','r-ok'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el) el.textContent='';
+    });
+  }
+
+  function doLogin() {
+    const u = document.getElementById('l-user').value;
+    const p = document.getElementById('l-pass').value;
+    const err = document.getElementById('l-err');
+    const btn = document.getElementById('l-btn');
+    err.textContent = '';
+    btn.disabled = true;
+    btn.textContent = 'Signing in…';
+    setTimeout(()=>{
+      const res = Auth.login(u, p);
+      if (res.ok) {
+        btn.textContent = '✓ Done!';
+        setTimeout(()=>window.location.href='home.html', 380);
+      } else {
+        err.textContent = res.msg;
+        btn.disabled = false;
+        btn.textContent = 'Sign In →';
       }
-      
-      // Disable button and show loading state
-      buttonElement.disabled = true;
-      buttonElement.textContent = 'Creating…';
-      
-      // Simulate slight delay for better UX
-      setTimeout(() => {
-        // Attempt registration
-        const result = Auth.register(username, password);
-        
-        if (result.ok) {
-          // Registration successful
-          successElement.textContent = '✓ Account created!';
-          buttonElement.textContent = '✓ Redirecting…';
-          
-          // Redirect to home page
-          setTimeout(() => {
-            window.location.href = 'home.html';
-          }, 420);
-        } else {
-          // Registration failed - show error
-          errorElement.textContent = result.msg;
-          
-          // Re-enable button
-          buttonElement.disabled = false;
-          buttonElement.content = 'Create Account →';
-        }
-      }, 250);
+    }, 250);
+  }
+
+  function doRegister() {
+    const u   = document.getElementById('r-user').value.trim();
+    const p   = document.getElementById('r-pass').value;
+    const p2  = document.getElementById('r-pass2').value;
+    const userErr = document.getElementById('r-user-err');
+    const err     = document.getElementById('r-err');
+    const ok      = document.getElementById('r-ok');
+    const btn     = document.getElementById('r-btn');
+
+    // Clear everything first
+    userErr.textContent = '';
+    err.textContent     = '';
+    ok.textContent      = '';
+
+    // Validate username here directly
+    if (!u) {
+      userErr.textContent = 'Username cannot be empty.';
+      document.getElementById('r-user').focus();
+      return;
     }
-  </script>
-  
+    if (!/^[a-zA-Z0-9_\-]{3,20}$/.test(u)) {
+      userErr.textContent = 'No spaces! Use letters, numbers, _ or - only (3–20 chars).';
+      document.getElementById('r-user').focus();
+      return;
+    }
+
+    // Validate passwords here directly
+    if (!p || p.length < 4) {
+      err.textContent = 'Password must be at least 4 characters.';
+      return;
+    }
+    if (p !== p2) {
+      err.textContent = 'Passwords do not match.';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Creating…';
+
+    setTimeout(() => {
+      const res = Auth.register(u, p);
+      if (res.ok) {
+        ok.textContent  = '✓ Account created!';
+        btn.textContent = '✓ Redirecting…';
+        setTimeout(() => window.location.href = 'home.html', 420);
+      } else {
+        // Only remaining failure = duplicate username
+        userErr.textContent = res.msg;
+        btn.disabled    = false;
+        btn.textContent = 'Create Account →';
+      }
+    }, 250);
+  }
+</script>
 </body>
 </html>
